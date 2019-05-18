@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from sys import exit
+from sys import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
@@ -8,8 +8,8 @@ from capture_core import *
 import numpy as np
 import matplotlib.pyplot as plt
 import json
-from monitor_system import start_monitor
-from forged_packet import startForged
+from monitor_system import start_monitor,Ui_Form
+from forged_packet import startForged,Ui_Form1
 from multiprocessing import Process
 
 
@@ -21,7 +21,7 @@ class Ui_MainWindow(QMainWindow):
     Forged = None
 
     def setupUi(self):
-        self.setWindowTitle("WireWhale")
+        self.setWindowTitle("一个嗅探工具")
         self.resize(950, 580)
 
         #设置程序图标
@@ -31,7 +31,7 @@ class Ui_MainWindow(QMainWindow):
         self.setIconSize(QSize(20, 20))
         #中间布局，设为透明
         self.centralWidget = QWidget(self)
-        self.centralWidget.setStyleSheet("background:transparent;")
+        # self.centralWidget.setStyleSheet("background:transparent;")
 
         #栅栏布局，使得窗口自适应
         self.gridLayout = QGridLayout(self.centralWidget)
@@ -63,6 +63,9 @@ class Ui_MainWindow(QMainWindow):
             if platform == "Linux":
                 font.setFamily("Noto Mono")
                 old_font["font"] = "Noto Mono"
+            if platform == "Darwin":
+                font.setFamily("Noto Mono")
+                old_font["font"] = "Noto Mono"
             font.setPointSize(11)
             with open('data.json', 'w') as file_obj:
                 '''写入json文件'''
@@ -78,13 +81,13 @@ class Ui_MainWindow(QMainWindow):
         #固定行高，取消每次刷新所有行，避免更新数据时不流畅
         self.info_tree.setUniformRowHeights(True)
         #设置表头
-        self.info_tree.headerItem().setText(0, "No.")
-        self.info_tree.headerItem().setText(1, "Time")
-        self.info_tree.headerItem().setText(2, "Source")
-        self.info_tree.headerItem().setText(3, "Destination")
-        self.info_tree.headerItem().setText(4, "Protocol")
-        self.info_tree.headerItem().setText(5, "Length")
-        self.info_tree.headerItem().setText(6, "Info")
+        self.info_tree.headerItem().setText(0, "序号")
+        self.info_tree.headerItem().setText(1, "时间")
+        self.info_tree.headerItem().setText(2, "来源IP")
+        self.info_tree.headerItem().setText(3, "目的IP")
+        self.info_tree.headerItem().setText(4, "协议")
+        self.info_tree.headerItem().setText(5, "长度")
+        self.info_tree.headerItem().setText(6, "详情")
         self.info_tree.setStyleSheet("background:transparent;")
         self.info_tree.setSortingEnabled(True)
         self.info_tree.sortItems(0, Qt.AscendingOrder)
@@ -109,7 +112,7 @@ class Ui_MainWindow(QMainWindow):
         self.treeWidget.setAutoScroll(True)
         self.treeWidget.setTextElideMode(Qt.ElideMiddle)
         self.treeWidget.header().setStretchLastSection(True)
-        self.treeWidget.setStyleSheet("background:transparent; color:white;")
+        self.treeWidget.setStyleSheet("background:white; color:black;")
         self.treeWidget.header().hide()
         self.treeWidget.setFont(font)
         # 设为只有一列
@@ -120,7 +123,7 @@ class Ui_MainWindow(QMainWindow):
         self.hexBrowser = QTextBrowser(self.centralWidget)
         self.hexBrowser.setText("")
         self.hexBrowser.setFont(font)
-        self.hexBrowser.setStyleSheet("background:transparent;  color:white;")
+        self.hexBrowser.setStyleSheet("background:white;  color:black;")
         self.hexBrowser.setFrameStyle(QFrame.Box | QFrame.Plain)
 
         # 允许用户通过拖动三个显示框的边界来控制子组件的大小
@@ -134,7 +137,7 @@ class Ui_MainWindow(QMainWindow):
 
         #过滤器输入框
         self.Filter = QLineEdit(self.centralWidget)
-        self.Filter.setPlaceholderText("Apply a capture filter … ")
+        self.Filter.setPlaceholderText("过滤规则 udp/tcp  … ")
         self.Filter.setStyleSheet("background:white")
         self.Filter.setFont(font)
         self.horizontalLayout.addWidget(self.Filter)
@@ -179,8 +182,8 @@ class Ui_MainWindow(QMainWindow):
         self.menu_F = QMenu(self.menuBar)
         self.menu_F.setTitle("文件(F)")
 
-        self.edit_menu = QMenu(self.menuBar)
-        self.edit_menu.setTitle("编辑(E)")
+        # self.edit_menu = QMenu(self.menuBar)
+        # self.edit_menu.setTitle("编辑(E)")
 
         self.capture_menu = QMenu(self.menuBar)
         self.capture_menu.setTitle("捕获(C)")
@@ -202,16 +205,6 @@ class Ui_MainWindow(QMainWindow):
         self.mainToolBar.setStyleSheet("background: #EDEDED;")
         self.mainToolBar.setMaximumHeight(25)
         self.setStatusBar(self.statusBar)
-
-        #字体设置键
-        font_set = QAction(self)
-        font_set.setText("主窗口字体")
-        font_set.triggered.connect(self.on_font_set_clicked)
-
-        #背景图片设置
-        change_border = QAction(self)
-        change_border.setText("背景图片")
-        change_border.triggered.connect(self.on_change_border_clicked)
 
         #开始键
         self.start_action = QAction(self)
@@ -295,13 +288,13 @@ class Ui_MainWindow(QMainWindow):
         self.forged_action = QAction(self)
         self.forged_action.setText("伪造包")
         self.forged_action.setShortcut('F7')
-        self.forged_action.triggered.connect(self.forged_action_clicked)
+        # self.forged_action.triggered.connect(self.forged_action_clicked)
 
         #流量监测
         self.action_track = QAction(self)
         self.action_track.setText("流量监测")
         self.action_track.setShortcut('F6')
-        self.action_track.triggered.connect(self.on_action_track_clicked)
+        # self.action_track.triggered.connect(self.on_action_track_clicked)
 
         #IP地址类型统计图
         self.IP_statistics = QAction(self)
@@ -325,10 +318,7 @@ class Ui_MainWindow(QMainWindow):
         self.menu_F.addAction(action_openfile)
         self.menu_F.addAction(action_savefile)
         self.menu_F.addAction(self.action_exit)
-        self.menu_F.showFullScreen()
-
-        self.edit_menu.addAction(font_set)
-        self.edit_menu.addAction(change_border)
+        # self.menu_F.showFullScreen()
 
         #捕获菜单栏添加子菜单
         self.capture_menu.addAction(self.start_action)
@@ -346,7 +336,6 @@ class Ui_MainWindow(QMainWindow):
         self.menu_Statistic.addAction(self.message_statistics)
 
         self.menuBar.addAction(self.menu_F.menuAction())
-        self.menuBar.addAction(self.edit_menu.menuAction())
         self.menuBar.addAction(self.capture_menu.menuAction())
         self.menuBar.addAction(self.menu_Analysis.menuAction())
         self.menuBar.addAction(self.menu_Statistic.menuAction())
@@ -360,7 +349,7 @@ class Ui_MainWindow(QMainWindow):
         self.baudNum = QLabel('上传速度:')
         self.getSpeed = QLabel('收包速度：')
         self.sendSpeed = QLabel('发包速度：')
-        self.netNic = QLabel('Welcome to WireWhale! ^ _ ^')
+        self.netNic = QLabel('一个嗅探工具')
         self.statusBar.setStyleSheet("background: #EDEDED;")
         """各个单元空间占比"""
         self.statusBar.addPermanentWidget(self.netNic, stretch=2)
@@ -435,8 +424,9 @@ class Ui_MainWindow(QMainWindow):
 
     def paintEvent(self, a0: QPaintEvent):
         painter = QPainter(self)
-        pixmap = QPixmap("img/Whale1.jpg")
-        painter.drawPixmap(self.rect(), pixmap)
+        # pixmap = QPixmap("img/Whale1.jpg")
+        # painter.drawPixmap(self.rect(), pixmap)
+
 
     """
        数据包视图 数据记录点击事件
@@ -491,6 +481,8 @@ class Ui_MainWindow(QMainWindow):
             a = netcards[card]
         elif platform == 'Linux':
             a = card
+        elif platform == 'Darwin':
+            a = card
         else:
             a = None
         return a
@@ -519,23 +511,6 @@ class Ui_MainWindow(QMainWindow):
             self.info_tree.setFont(font)
             self.treeWidget.setFont(font)
             self.hexBrowser.setFont(font)
-
-    """
-        设置背景图片
-    """
-
-    def on_change_border_clicked(self):
-        imgName, imgType = QFileDialog.getOpenFileName(
-            self, "打开图片", "C:/", "*.jpg;;*.png;;All Files(*)")
-        with open('data.json', 'r') as file_obj:
-            '''读取json文件'''
-            old_image = json.load(file_obj)  # 返回列表数据，也支持字典
-        old_image["imageUrl"] = imgName
-        with open('data.json', 'w') as file:
-            json.dump(old_image, file)
-        window_pale = QPalette()
-        window_pale.setBrush(self.backgroundRole(), QBrush(QPixmap(imgName)))
-        self.setPalette(window_pale)
 
     """
        开始键点击事件
@@ -739,10 +714,10 @@ class Ui_MainWindow(QMainWindow):
 
     def on_action_track_clicked(self):
         if not self.Monitor or not self.Monitor.is_alive():
-            self.Monitor = Process(target=start_monitor)
-            self.Monitor.start()
+            start_monitor()
+            # self.Monitor = Process(target=start_monitor)
+            # self.Monitor.start()
 
-    ''
 
     def forged_action_clicked(self):
         if not self.Forged or not self.Forged.is_alive():
@@ -797,7 +772,15 @@ class Ui_MainWindow(QMainWindow):
 
 
 def start():
-    app = QApplication([])
+    app = QApplication(sys.argv)
     ui = Ui_MainWindow()
     ui.setupUi()
+    widget = QWidget()
+    monitor = Ui_Form()
+    monitor.setupUi(widget)
+    ui.action_track.triggered.connect(widget.show)
+    widget1 = QWidget()
+    Forged = Ui_Form1()
+    Forged.setupUi(widget1)
+    ui.forged_action.triggered.connect(widget1.show)
     app.exec()

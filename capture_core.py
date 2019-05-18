@@ -21,7 +21,8 @@ if platform == 'Windows':
     keys = list(netcards.keys())
 elif platform == 'Linux':
     keys = list(netcards)
-
+elif platform == 'Darwin':
+    keys = list(netcards)
 # arp字典
 arp_dict = {
     1: "who-has",
@@ -243,12 +244,12 @@ class Core():
             # 实际抓到的长度
             packet_capturedlen = "%d bytes (%d bits)" % (len(packet),
                                                          len(packet) << 3)
-            frame = "Frame %d: %s on wire, %s captured" % (
+            frame = "框架 %d: %s on wire, %s 捕获" % (
                 this_id, packet_wirelen, packet_capturedlen)
             first_return.append(frame)
             # 抓包的时间
             first_layer.append(
-                "Arrival Time: %s" % time_to_formal(packet.time))
+                "到达时间: %s" % time_to_formal(packet.time))
             first_layer.append("Epoch Time: %f seconds" % packet.time)
             delta_time = packet.time - previous_packet_time
             first_layer.append(
@@ -257,9 +258,9 @@ class Core():
             delta_time = packet.time - self.start_timestamp
             first_layer.append(
                 "[Time since first frame: %f seconds]" % delta_time)
-            first_layer.append("Frame Number: %d" % this_id)
-            first_layer.append("Frame Length: %s" % packet_wirelen)
-            first_layer.append("Capture Length: %s" % packet_capturedlen)
+            first_layer.append("帧数: %d" % this_id)
+            first_layer.append("帧长度: %s" % packet_wirelen)
+            first_layer.append("捕获的长度: %s" % packet_capturedlen)
             # 添加第一层信息到二维列表中
             second_return.append(first_layer)
             first_temp, second_temp = self.get_next_layer(packet)
@@ -306,7 +307,7 @@ class Core():
                 protocol += "v4"
                 ip_src = packet[packet_class].src
                 ip_dst = packet[packet_class].dst
-                network = "Internet Protocol Version 4, Src: %s, Dst: %s" % (
+                network = "IPV4, Src: %s, Dst: %s" % (
                     ip_src, ip_dst)
                 first_return.append(network)
                 next_layer.append("Version: %d" % packet[packet_class].version)
@@ -342,7 +343,7 @@ class Core():
             elif protocol == "IPv6" or protocol == "IPv6 in ICMPv6":
                 ipv6_src = packet[packet_class].src
                 ipv6_dst = packet[packet_class].dst
-                network = ("Internet Protocol Version 6, Src: %s, Dst: %s" %
+                network = ("IPV6, Src: %s, Dst: %s" %
                            (ipv6_src, ipv6_dst))
                 first_return.append(network)
                 next_layer.append("Version: %d" % packet[packet_class].version)
@@ -397,7 +398,7 @@ class Core():
                 src_port = packet[packet_class].sport
                 dst_port = packet[packet_class].dport
                 transport = (
-                    "Transmission Control Protocol, Src Port: %d, Dst Port: %d"
+                    "传输控制协议, Src Port: %d, Dst Port: %d"
                     % (src_port, dst_port))
                 first_return.append(transport)
                 next_layer.append("Source Port: %d" % src_port)

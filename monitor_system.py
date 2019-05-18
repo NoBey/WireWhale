@@ -196,12 +196,13 @@ def start_monitor():
     """
     调用监测系统
     """
-    app = QtWidgets.QApplication([])
+    
+    # app = QtWidgets.QApplication([])
     widget = QtWidgets.QWidget()
     ui = Ui_Form()
     ui.setupUi(widget)
     widget.show()
-    app.exec()
+    # app.exec()
 
 
 if __name__ == "__main__":

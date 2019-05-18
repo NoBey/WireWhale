@@ -18,11 +18,7 @@ def get_netcard_name():
     info = net_if_addrs()
     for k, v in info.items():
         for item in v:
-            # 除去环路地址
-            if item[0] == 2 and item[1] == '127.0.0.1':
-                break
-            # 创建字典
-            elif item[0] == -1 or item[0] == 17:
+            if item[0] == 2 and not item[1] == '127.0.0.1':
                 netcard_info.update({item[1]: k})
     return netcard_info
 
@@ -37,6 +33,8 @@ def get_nic_list():
     # 获取系统信息
     system_name = system()
     netcard_name = get_netcard_name()
+    print(system_name)
+    print(netcard_name)
     if system_name == "Windows":
         import wmi
         wmi_obj = wmi.WMI()
@@ -53,6 +51,9 @@ def get_nic_list():
     elif system_name == "Linux":
         List = list(netcard_name.values())
         return (system_name, List)
+    elif system_name == "Darwin":
+        List = list(netcard_name.values())
+        return (system_name, List)        
     else:
         return None
 
@@ -140,3 +141,7 @@ def time_to_formal(time_stamp):
     my_time = time.strftime("%Y-%m-%d %H:%M:%S", time_temp)
     my_time += delta_ms[1:8]
     return my_time
+
+
+get_nic_list()
+get_netcard_name()

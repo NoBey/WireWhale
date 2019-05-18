@@ -4,6 +4,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from scapy.sendrecv import sr, sr1, srloop
 import scapy
 from scapy.layers.inet import *
+from scapy.all import *
 import sys
 import threading
 
@@ -16,7 +17,7 @@ class EmittingStream(QtCore.QObject):
         self.textWritten.emit(str(text))
 
 
-class Ui_Form(object):
+class Ui_Form1(object):
     Form = None
 
     def setupUi(self, Form):
@@ -765,7 +766,7 @@ class Ui_Form(object):
 def startForged():
     app = QtWidgets.QApplication(sys.argv)
     widget = QtWidgets.QWidget()
-    ui = Ui_Form()
+    ui = Ui_Form1()
     ui.setupUi((widget))
     widget.show()
     app.exec_()
